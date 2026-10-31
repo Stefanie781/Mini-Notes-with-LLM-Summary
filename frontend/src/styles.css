@@ -1,0 +1,182 @@
+:root {
+  --bg: #f6f7fb;
+  --panel: #ffffff;
+  --text: #1c2333;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --primary: #4f46e5;
+  --primary-weak: #eef2ff;
+  --accent: #0d9488;
+  --accent-weak: #ecfdf5;
+  --danger: #dc2626;
+  --danger-weak: #fef2f2;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* header */
+.app__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.app__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+.conn {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+.conn--on { color: var(--accent); border-color: #99f6e4; background: var(--accent-weak); }
+.conn--off { color: var(--muted); }
+
+/* banners */
+.banner {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+.banner--warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.banner--error { background: var(--danger-weak); border: 1px solid #fecaca; color: var(--danger); }
+.banner code { font-size: 12px; }
+
+/* composer */
+.composer {
+  display: flex;
+  gap: 8px;
+  background: var(--panel);
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.composer__input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  outline: none;
+}
+.composer__input:focus { border-color: var(--primary); }
+
+/* buttons */
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.btn:disabled { opacity: 0.55; cursor: default; }
+.btn--primary { background: var(--primary); color: #fff; }
+.btn--accent { background: var(--accent); color: #fff; }
+
+/* notes */
+.notes__title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.notes__count { color: var(--muted); font-weight: 400; }
+.notes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+.note__order {
+  flex: none;
+  min-width: 28px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--primary-weak);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.note__body { flex: 1; min-width: 0; }
+.note__text { word-break: break-word; white-space: pre-wrap; }
+.note__time { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.note__delete {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.note__delete:hover { background: var(--danger-weak); color: var(--danger); }
+.notes__empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 18px 0;
+  background: var(--panel);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* summary */
+.summary__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.summary__status { color: var(--muted); font-size: 12px; }
+.summary__panel {
+  margin-top: 10px;
+  background: var(--accent-weak);
+  border: 1px solid #99f6e4;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.summary__text { white-space: pre-wrap; word-break: break-word; }
+.summary__meta {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}

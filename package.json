@@ -1,0 +1,22 @@
+{
+  "name": "anna-mini-notes",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mini Notes with LLM Summary — an Anna App: engineered UI bundle + Anna storage Host API + Executa tool with sampling.",
+  "scripts": {
+    "install:all": "npm install && npm --prefix frontend install && npm --prefix executas/notes-summarizer install",
+    "build": "npm --prefix frontend run build",
+    "validate": "anna-app validate --strict",
+    "dev": "anna-app dev --no-llm",
+    "dev:llm": "anna-app dev",
+    "executa:dev": "anna-app executa dev --dir executas/notes-summarizer --mock-sampling executas/notes-summarizer/fixtures/sampling-mock.jsonl",
+    "executa:describe": "anna-app executa dev --dir executas/notes-summarizer --describe",
+    "executa:invoke": "anna-app executa dev --dir executas/notes-summarizer --invoke summarize --args '{\"notes\":[{\"order\":1,\"text\":\"明天跟客户 follow up\"},{\"order\":2,\"text\":\"修复登录 bug\"}]}' --mock-sampling executas/notes-summarizer/fixtures/sampling-mock.jsonl",
+    "test:protocol": "node scripts/test-protocol.js",
+    "package": "bash scripts/build-binary.sh",
+    "package:test": "bash scripts/build-binary.sh --test"
+  },
+  "devDependencies": {
+    "@anna-ai/cli": "^0.1.56"
+  }
+}

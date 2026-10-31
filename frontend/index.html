@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mini Notes</title>
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header">
+        <h1 class="app__title">📝 Mini Notes</h1>
+        <span id="conn-status" class="conn conn--off" title="Disconnected">offline</span>
+      </header>
+
+      <p id="standalone-banner" class="banner banner--warn" hidden>
+        未连接 Anna Runtime。请通过 <code>anna-app dev</code> 打开本应用；离线预览模式下笔记不可保存。
+      </p>
+
+      <form id="note-form" class="composer">
+        <input
+          id="note-input"
+          class="composer__input"
+          type="text"
+          maxlength="500"
+          placeholder="写点什么… 例如：明天跟客户 follow up"
+          autocomplete="off"
+        />
+        <button id="add-btn" class="btn btn--primary" type="submit">添加</button>
+      </form>
+
+      <section class="notes">
+        <h2 class="notes__title">笔记 <span id="note-count" class="notes__count"></span></h2>
+        <ul id="note-list" class="notes__list"></ul>
+        <p id="empty-state" class="notes__empty" hidden>还没有笔记，添加第一条吧。</p>
+        <p id="storage-error" class="banner banner--error" hidden></p>
+      </section>
+
+      <section class="summary">
+        <div class="summary__bar">
+          <button id="summarize-btn" class="btn btn--accent" type="button">✨ Summarize</button>
+          <span id="summarize-status" class="summary__status"></span>
+        </div>
+        <div id="summary-panel" class="summary__panel" hidden>
+          <div class="summary__text" id="summary-text"></div>
+          <div class="summary__meta" id="summary-meta"></div>
+        </div>
+        <p id="summarize-error" class="banner banner--error" hidden></p>
+      </section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

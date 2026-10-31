@@ -1,0 +1,12 @@
+{
+  "slug": "mini-notes",
+  "name": "Mini Notes",
+  "version": "1.0.0",
+  "tagline": "Tiny notes with an LLM summary — Anna storage + Executa sampling.",
+  "description": "Mini Notes is a minimal Anna App. Create, view and delete short notes; every read/write goes through the Anna storage Host API (anna.storage.get / anna.storage.set). One click of Summarize routes through anna.tools.invoke to a bundled Executa tool, which borrows the host LLM via reverse JSON-RPC sampling/createMessage. No own API keys, no side-channel storage.",
+  "category": "productivity",
+  "bundled_executas": {
+    "notes-summarizer": { "path": "./executas/notes-summarizer" }
+  },
+  "_comment": "Local development only needs manifest.json + executas/; app.json carries listing metadata used by `anna-app apps publish`."
+}

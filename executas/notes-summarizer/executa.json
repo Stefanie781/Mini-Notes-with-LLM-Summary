@@ -1,0 +1,7 @@
+{
+  "tool_id": "tool-dev-mini-notes-summarizer",
+  "type": "node",
+  "command": ["node", "server.js"],
+  "enabled": true,
+  "_comment": "Local Executa discovery for `anna-app dev` / `anna-app executa dev`. tool_id matches manifest.json required_executas, ui.host_api.tools and the frontend TOOL_ID constant."
+}

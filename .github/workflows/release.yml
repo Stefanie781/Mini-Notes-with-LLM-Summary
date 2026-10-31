@@ -1,0 +1,165 @@
+# ============================================================
+# Release — mini-notes-summarizer Executa binaries
+# ============================================================
+# Triggers:
+#   • push of a tag matching "v*"              (recommended)
+#   • manual workflow_dispatch (optional tag input,
+#     defaults to the executa package version)
+#
+# Produces ONE GitHub Release with all platform assets:
+#   mini-notes-summarizer-<ver>-darwin-arm64.tar.gz
+#   mini-notes-summarizer-<ver>-darwin-x86_64.tar.gz
+#   mini-notes-summarizer-<ver>-windows-x86_64.zip
+#   mini-notes-summarizer-<ver>-linux-x86_64.tar.gz   (extra, used for smoke test)
+#
+# Each archive has the Anna binary-distribution layout:
+#   manifest.json (runtime.binary.entrypoint + permissions) + bin/<tool>
+#
+# Smoke test: the linux archive is unpacked and the packaged binary is
+# driven through initialize / describe / invoke(summarize with a fake
+# sampling host) / health — see scripts/test-protocol.js.
+# ============================================================
+
+name: Release Executa Binaries
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. v1.0.0). Empty = derive from executa version."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: darwin-arm64
+          - platform: darwin-x86_64
+          - platform: windows-x86_64
+          - platform: linux-x86_64 # extra platform: natively runnable smoke test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Protocol test against the SOURCE (fast feedback on every platform job)
+      - name: Protocol test (source)
+        run: node scripts/test-protocol.js
+
+      - name: Build & package archive
+        run: bash scripts/build-binary.sh --platform ${{ matrix.platform }}
+
+      - name: Smoke test — unpack archive, run packaged binary through JSON-RPC
+        if: matrix.platform == 'linux-x86_64'
+        run: |
+          set -euo pipefail
+          VER=$(node -p "require('./executas/notes-summarizer/package.json').version")
+          rm -rf /tmp/smoke && mkdir -p /tmp/smoke
+          tar xzf "dist/mini-notes-summarizer-${VER}-linux-x86_64.tar.gz" -C /tmp/smoke
+          test -f /tmp/smoke/manifest.json
+          test -f /tmp/smoke/bin/mini-notes-summarizer
+          node -e '
+            const m = require("/tmp/smoke/manifest.json");
+            const e = m.runtime.binary.entrypoint;
+            if (m.name !== "mini-notes-summarizer" || e.default !== "bin/mini-notes-summarizer") {
+              console.error("archive manifest.json invalid", m); process.exit(1);
+            }
+            console.log("✓ archive root manifest.json OK (entrypoint:", e.default + ")");
+          '
+          node scripts/test-protocol.js /tmp/smoke/bin/mini-notes-summarizer
+
+      - name: Verify darwin/windows archives contain root manifest.json + bin/
+        if: matrix.platform != 'linux-x86_64'
+        run: |
+          set -euo pipefail
+          VER=$(node -p "require('./executas/notes-summarizer/package.json').version")
+          case "${{ matrix.platform }}" in
+            windows-*) 
+              unzip -l "dist/mini-notes-summarizer-${VER}-windows-x86_64.zip" | grep -E "manifest.json|bin/mini-notes-summarizer.exe"
+              ;;
+            *)
+              tar tzf "dist/mini-notes-summarizer-${VER}-${{ matrix.platform }}.tar.gz" | grep -E "^(manifest.json|bin/)"
+              ;;
+          esac
+
+      - name: Upload workflow artifact (auxiliary only — release assets come from the release job)
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-${{ matrix.platform }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release assets
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist-assets
+          pattern: archive-*
+          merge-multiple: true
+
+      - name: Resolve release tag
+        id: tag
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          elif [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="v$(node -p "require('./executas/notes-summarizer/package.json').version")"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "resolving release tag: ${TAG}"
+
+      - name: Check expected assets are present
+        run: |
+          set -euo pipefail
+          VER=$(node -p "require('./executas/notes-summarizer/package.json').version")
+          for f in \
+            "mini-notes-summarizer-${VER}-darwin-arm64.tar.gz" \
+            "mini-notes-summarizer-${VER}-darwin-x86_64.tar.gz" \
+            "mini-notes-summarizer-${VER}-windows-x86_64.zip"; do
+            test -f "dist-assets/$f" || { echo "missing asset: $f"; exit 1; }
+          done
+          ls -lh dist-assets/
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: mini-notes-summarizer ${{ steps.tag.outputs.tag }}
+          body: |
+            Executa tool binaries for **mini-notes-summarizer** (Mini Notes app).
+
+            | Asset | Platform |
+            |---|---|
+            | `*-darwin-arm64.tar.gz` | macOS Apple Silicon |
+            | `*-darwin-x86_64.tar.gz` | macOS Intel |
+            | `*-windows-x86_64.zip` | Windows x64 |
+            | `*-linux-x86_64.tar.gz` | Linux x64 (extra) |
+
+            Every archive follows the Anna Executa binary distribution spec:
+            a root `manifest.json` declaring `runtime.binary.entrypoint` and
+            `permissions`, plus the executable under `bin/`.
+          files: |
+            dist-assets/*.tar.gz
+            dist-assets/*.zip

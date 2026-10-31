@@ -1,0 +1,22 @@
+{
+  "name": "mini-notes-summarizer",
+  "version": "1.0.0",
+  "description": "Executa tool that summarizes Mini Notes via host LLM sampling (JSON-RPC 2.0 over stdio).",
+  "license": "MIT",
+  "bin": {
+    "mini-notes-summarizer": "./server.js"
+  },
+  "executa": {
+    "tool_id": "tool-dev-mini-notes-summarizer",
+    "type": "node"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "package": "bash ../../scripts/build-binary.sh",
+    "package:test": "bash ../../scripts/build-binary.sh --test",
+    "test:protocol": "node ../../scripts/test-protocol.js"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.3.0"
+  }
+}
