@@ -56,9 +56,17 @@ Anna App iframe
 
 ## 2. 安装依赖
 
-要求 Node ≥ 18（推荐 20 / 22），并已安装 `anna-app` CLI（通过根 devDependency 提供）。
+需要两样外部前置：
+
+1. **Node ≥ 18**（推荐 20 / 22）
+2. **`uv`**（Python 包管理器，`anna-app dev` 用它通过 `uvx` 启动本地 Python 运行时）
 
 ```bash
+# 安装 uv（macOS / Linux）：
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# 或见 https://docs.astral.sh/uv/
+
+# 安装项目依赖：
 npm run install:all
 # 等价于：
 #   npm install                                  （根，含 @anna-ai/cli）
@@ -67,6 +75,12 @@ npm run install:all
 ```
 
 `anna-app` CLI 会以 `npx anna-app ...` 方式调用（根 `node_modules/.bin` 已包含）。
+
+> 环境自检：`npx anna-app doctor`。它会检查 `uv` 是否就绪（缺则提示安装命令）；
+> 首次 `anna-app dev` 会自动通过 `uvx` 下载一次运行时、并自动生成本地 `dev.key`，均无需手动处理。
+>
+> 提示：`npm run validate`、`npm run build`、`npm run test:protocol` 都是纯 Node，**不依赖 `uv`**；
+> 只有 `npm run dev` 和 `npm run executa:invoke`（走 `anna-app` 本地 harness）需要 `uv`。
 
 ---
 
